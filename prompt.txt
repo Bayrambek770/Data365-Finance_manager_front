@@ -1,0 +1,270 @@
+Build a multi-page React web application called "Xisob" — 
+a business finance dashboard for small and medium businesses 
+in Uzbekistan. The app is in English. The design must feel 
+polished, trustworthy, and intentional — like a real fintech 
+product, not a generic admin template.
+
+---
+
+TECH STACK:
+- React (with hooks)
+- React Router (for multi-page navigation)
+- Tailwind CSS (for styling)
+- Recharts (for all charts)
+- Axios (for API calls)
+- date-fns (for date formatting)
+
+---
+
+IDENTITY & BRANDING:
+- App name: Xisob (means "Account/Finance" in Uzbek)
+- Primary color: Deep navy blue (#0F172A)
+- Accent color: Emerald green (#10B981) for income
+- Danger color: Rose red (#F43F5E) for expenses
+- Background: Very light gray (#F8FAFC)
+- Cards: Pure white with subtle shadow
+- Font: Inter (Google Fonts)
+- Logo: Simple "X" monogram in emerald on navy
+
+---
+
+USER IDENTIFICATION:
+- The URL contains a unique user code: /dashboard/YOUR_CODE
+- On every page load, read this code from the URL params
+- Store it in React Context (UserContext) globally
+- Every API request sends this code in headers: 
+  X-User-Code: {code from URL}
+- This is how the backend knows who is making the request
+- No login page, no signup — the code IS the identity
+
+---
+
+LAYOUT:
+- Fixed left sidebar navigation (240px wide)
+- Top header bar (60px tall)
+- Main content area fills the rest
+- Sidebar shows: Xisob logo, nav links, 
+  and at bottom: user phone number (fetched from API)
+- Sidebar nav links:
+  - Overview (home icon)
+  - Transactions (list icon)
+  - Analytics (chart icon)
+  - Categories (tag icon)
+  - Budgets (target icon)
+- Active link has emerald left border + emerald text
+- Sidebar is dark navy (#0F172A), text is white
+
+---
+
+TOP HEADER:
+- Shows current page title
+- Right side: current date, and a 
+  "+ Add Transaction" button (emerald, prominent)
+- The "+ Add Transaction" button opens a modal
+
+---
+
+ADD TRANSACTION MODAL:
+- Triggered from header button and Overview quick-add
+- Fields:
+  - Type toggle: Income / Expense (pill toggle, 
+    green for income, red for expense)
+  - Amount (number input, shows UZS by default)
+  - Currency selector: UZS / USD (dropdown)
+  - Category (dropdown, populated from API)
+  - Date (date picker, default today)
+  - Note (optional textarea)
+- Submit button: "Save Transaction"
+- Clean centered modal with backdrop blur
+
+---
+
+PAGE 1 — OVERVIEW (/dashboard/:code)
+
+Top row — 3 KPI cards:
+- Total Income this month (emerald, up arrow icon)
+- Total Expenses this month (rose, down arrow icon)  
+- Net Balance this month (navy, = icon)
+Each card shows:
+  - Label
+  - Big number (formatted: 12,500,000 UZS)
+  - Comparison with last month 
+    (e.g. "+12% vs last month" in small text, 
+    green if better, red if worse)
+
+Second row:
+- Income vs Expense bar chart (last 6 months) 
+  using Recharts BarChart — takes 60% width
+- Expense breakdown donut chart by category 
+  using Recharts PieChart — takes 40% width
+
+Third row:
+- Recent Transactions list (last 10)
+  Each row: category icon, description/note, 
+  date, amount (green for income, red for expense)
+  "View all" link at bottom
+
+EMPTY STATE (no data yet):
+- Friendly illustration (simple SVG — 
+  a small plant growing from coins)
+- Heading: "Your financial story starts here"
+- Subtext: "Log your first transaction using 
+  the Telegram bot or the button above"
+- Big emerald "Add First Transaction" button
+
+---
+
+PAGE 2 — TRANSACTIONS (/dashboard/:code/transactions)
+
+Filter bar at top:
+- Date range picker (from / to)
+- Category dropdown filter
+- Type filter: All / Income / Expense
+- Search input (searches notes and categories)
+- "Clear filters" link
+
+Transactions table:
+- Columns: Date | Category | Note | Added By | 
+  Amount | Type | Actions
+- "Added By" shows phone number of who logged it
+- Amount: green for income, red for expense
+- Actions column:
+  - Edit icon (pencil) — only active if this 
+    transaction belongs to current user code
+  - Delete icon (trash) — only active if this 
+    transaction belongs to current user code
+  - If not owner: icons are grayed out with 
+    tooltip "You can only edit your own transactions"
+- Inline edit: clicking edit turns the row into 
+  editable fields (no modal needed)
+- Pagination: 20 rows per page
+
+EMPTY STATE:
+- Icon: receipt with magnifying glass
+- Text: "No transactions found"
+- If filters active: "Try clearing your filters"
+
+---
+
+PAGE 3 — ANALYTICS (/dashboard/:code/analytics)
+
+Period selector at top: This Week / This Month / 
+This Quarter / This Year / Custom Range
+
+Row 1:
+- Line chart: Income vs Expenses over time 
+  (Recharts LineChart, two lines, emerald + rose)
+  Full width
+
+Row 2 (two equal columns):
+- Bar chart: Top 5 expense categories this period
+- Bar chart: Top 5 income categories this period
+
+Row 3:
+- Table: Category breakdown
+  Columns: Category | Total Amount | 
+  % of total | Transaction Count | Trend vs last period
+  Sorted by amount descending
+
+Row 4:
+- "Best day of the week" — small horizontal bar chart 
+  showing which weekday has most transactions
+- "Average transaction size" — single number card
+
+EMPTY STATE:
+- Text: "Not enough data to show analytics yet"
+- Subtext: "Log at least 5 transactions to 
+  see your financial patterns"
+
+---
+
+PAGE 4 — CATEGORIES (/dashboard/:code/categories)
+
+Two sections side by side:
+Left: Income Categories | Right: Expense Categories
+
+Each section:
+- List of existing categories with:
+  - Color dot
+  - Category name
+  - Transaction count
+  - Delete button (only if no transactions use it)
+- "+ Add Category" button at bottom of each list
+- Clicking add: inline input appears, 
+  type name → press Enter to save
+
+Default categories shown with lock icon 
+(cannot be deleted):
+Income defaults: Sales, Services, Investment, Other
+Expense defaults: Salaries, Logistics, Rent, 
+  Marketing, Utilities, Taxes, Other
+
+EMPTY STATE: not needed (defaults always shown)
+
+---
+
+PAGE 5 — BUDGETS (/dashboard/:code/budgets)
+
+This is the bonus feature — Budget Limits per Category.
+
+Header text: 
+"Set monthly spending limits for each expense 
+category. Get warned before you overspend."
+
+Cards grid (one card per expense category):
+Each card shows:
+- Category name + icon
+- Budget limit input (editable inline, UZS)
+- Current month spending (from API)
+- Progress bar:
+  - Green: 0–70% of budget used
+  - Yellow/amber: 70–90% used
+  - Red: 90–100%+ used (shows "Over budget!")
+- Text: "X,XXX,XXX of Y,YYY,YYY UZS used"
+- If no budget set: "Set limit" placeholder text
+
+Top of page: summary banner
+- How many categories are over budget (red banner)
+- How many are approaching limit (yellow banner)
+- Only shown if relevant
+
+EMPTY STATE (no budgets set yet):
+- Text: "No budget limits set"
+- Subtext: "Setting limits helps your team 
+  spend more consciously"
+- Prompt to set first budget
+
+---
+
+GENERAL UX RULES:
+- All numbers formatted with commas: 12,500,000
+- Currency always shown: 12,500,000 UZS or $1,250
+- Dates formatted: Apr 23, 2026
+- All API calls show loading skeleton (not spinner)
+- Skeleton: gray animated pulse placeholder 
+  matching the shape of the content
+- All errors show a small red toast notification 
+  (top right, auto-dismisses after 4 seconds)
+- All success actions show green toast notification
+- Smooth page transitions (100ms fade)
+- Fully responsive down to 768px tablet width
+- No horizontal scroll on any page
+
+---
+
+API BASE URL: http://localhost:8000/api
+All requests include header: X-User-Code: {code from URL}
+
+Endpoints the frontend will call:
+GET  /overview?period=month
+GET  /transactions?from=&to=&category=&type=&search=&page=
+POST /transactions
+PUT  /transactions/:id
+DELETE /transactions/:id
+GET  /categories
+POST /categories
+DELETE /categories/:id
+GET  /analytics?period=month
+GET  /budgets
+PUT  /budgets/:category_id
+GET  /me (returns phone number for sidebar)
